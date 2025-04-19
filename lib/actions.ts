@@ -110,3 +110,42 @@ export async function deleteExpense(id: string) {
     }
 }
 
+
+export async function getExpenseStats() {
+    try {
+        // Calculate stats from expenses
+        if (expenses.length === 0) {
+            return {
+                totalSpent: 0,
+                averageExpense: 0,
+                largestExpense: 0,
+                expensesThisMonth: 0,
+            }
+        }
+
+        const total = expenses.reduce((sum, expense) => sum + expense.amount, 0)
+        const average = total / expenses.length
+        const largest = Math.max(...expenses.map((expense) => expense.amount))
+
+        // Calculate this month's expenses
+        const now = new Date()
+        const thisMonth = now.getMonth()
+        const thisYear = now.getFullYear()
+        const thisMonthExpenses = expenses
+            .filter((expense) => {
+                const expenseDate = new Date(expense.date)
+                return expenseDate.getMonth() === thisMonth && expenseDate.getFullYear() === thisYear
+            })
+            .reduce((sum, expense) => sum + expense.amount, 0)
+
+        return {
+            totalSpent: total,
+            averageExpense: average,
+            largestExpense: largest,
+            expensesThisMonth: thisMonthExpenses,
+        }
+    } catch (error) {
+        console.error("Failed to get expense stats:", error)
+        throw new Error("Failed to get expense stats")
+    }
+}
