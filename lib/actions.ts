@@ -149,3 +149,34 @@ export async function getExpenseStats() {
         throw new Error("Failed to get expense stats")
     }
 }
+
+export async function updateExpense(id: string, data: Omit<Expense, "id">) {
+    try {
+        const index = expenses.findIndex((expense) => expense.id === id)
+
+        if (index !== -1) {
+            expenses[index] = {
+                ...expenses[index],
+                ...data,
+                date: data.date,
+                id,
+            }
+        }
+
+        revalidatePath("/expenses")
+        revalidatePath("/")
+        return expenses[index]
+    } catch (error) {
+        console.error("Failed to update expense:", error)
+        throw new Error("Failed to update expense")
+    }
+}
+
+export async function getExpenseById(id: string) {
+    try {
+        return expenses.find((expense) => expense.id === id) || null
+    } catch (error) {
+        console.error("Failed to get expense:", error)
+        throw new Error("Failed to get expense")
+    }
+}
